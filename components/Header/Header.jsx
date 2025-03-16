@@ -2,8 +2,10 @@ import Link from "next/link";
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import { Button } from "../ui/button";
 import { LayoutDashboard, PenBox } from "lucide-react";
+import { checkUser } from "@/lib/checkUser";
 
-export default function Navbar() {
+export const Header = async() => {
+   await checkUser();
   return (
     <div className="fixed top-0 z-50 w-full bg-white/80 backdrop-blur-lg shadow-md">
       <nav className="flex items-center justify-between px-6 py-3 max-w-6xl mx-auto">
