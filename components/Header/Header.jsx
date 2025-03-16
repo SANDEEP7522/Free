@@ -12,7 +12,7 @@ export const Header = async() => {
         {/* Logo for the app */}
         <Link
           href="/"
-          className="flex items-center space-x-2 text-2xl font-bold text-blue-600 transition hover:text-blue-800"
+          className="flex items-center space-x-2 text-2xl font-bold text-blue-600 transition hover:text-blue-800 cursor-pointer"
         >
           <span className="text-3xl">💰</span>
           <span>Finance</span>
@@ -22,7 +22,7 @@ export const Header = async() => {
         <div className="flex items-center space-x-4">
           <SignedIn>
             <Link href="/dashboard"
-            className="flex items-center space-x-2 text-2xl font-bold text-blue-600 transition hover:text-blue-800"
+            className="flex items-center space-x-2 text-2xl font-bold text-blue-600 transition hover:text-blue-800 cursor-pointer"
             >
               <Button variant="outline">
                 <LayoutDashboard size={20} />
@@ -32,7 +32,7 @@ export const Header = async() => {
             </Link>
 
             <Link href="/transactions/create"
-            className="flex items-center space-x-2 text-2xl font-bold text-blue-600 transition hover:text-blue-800"
+            className="flex items-center space-x-2 text-2xl font-bold text-blue-600 transition hover:text-blue-800 cursor-pointer"
             >
               <Button variant="outline">
                 <PenBox size={20} />
