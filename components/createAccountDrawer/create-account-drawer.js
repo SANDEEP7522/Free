@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Drawer,
   DrawerClose,
@@ -23,6 +23,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { accountSchema } from "@/app/lib/schema";
+import { useFetch } from "@/hooks/use-featch";
+import { createAccount } from "@/action/dashboard";
+import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 const CreateAccountDrawer = ({ children }) => {
   const [open, setOpen] = useState(false);
@@ -30,7 +34,7 @@ const CreateAccountDrawer = ({ children }) => {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
     setValue,
     watch,
     reset,
@@ -44,10 +48,31 @@ const CreateAccountDrawer = ({ children }) => {
     },
   });
 
+  const {
+    data: newAccount,
+    loading: createAccountLoading,
+    error,
+    fn: createAccountFn,
+  } = useFetch(createAccount);
+
+  useEffect(() => {
+    if (newAccount && !createAccountLoading) {
+     console.log("✅ Toast should appear now!");
+      toast.success("Account created successfully");
+      setOpen(false);
+      reset();
+    }
+  }, [createAccountLoading, newAccount]);
+
+  useEffect(() => {
+    if (error) {
+      toast.error(error.message || "Something went wrong");
+    }
+  }, [error]);
+
   const onSubmit = async (data) => {
     console.log(data);
-         setOpen(false);
-       reset();
+    await createAccountFn(data);
   };
 
   return (
@@ -147,8 +172,18 @@ const CreateAccountDrawer = ({ children }) => {
               </Button>
             </DrawerClose>
 
-            <Button type="submit" className="w-full sm:w-auto cursor-pointer ">
-              Create Account
+            <Button
+              type="submit"
+              className="w-full sm:w-auto cursor-pointer"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="animate-spin mr-2" /> Loading.....
+                </>
+              ) : (
+                "Create Account"
+              )}
             </Button>
           </div>
         </form>
@@ -158,3 +193,4 @@ const CreateAccountDrawer = ({ children }) => {
 };
 
 export default CreateAccountDrawer;
+
