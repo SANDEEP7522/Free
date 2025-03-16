@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client-js" // Generates Prisma Client for JavaScript/TypeScript
+}
+
+datasource db {
+  provider  = "postgresql"       // Specifies PostgreSQL as the database provider
+  url       = env("DATABASE_URL") // Database connection URL from environment variable
+  directUrl = env("DIRECT_URL")   // Direct database URL for Prisma
+}
+
+model User {
+  id            String    @id @default(uuid()) // Unique identifier for the user
+  clerkUserId   String    @unique // Clerk authentication user ID
+  email         String    @unique // User's email (must be unique)
+  name          String?   // Optional user name
+  imageUrl      String?   // Optional profile image URL
+  transactions  Transaction[] // Relationship: One user can have multiple transactions
+  accounts      Account[] // Relationship: One user can have multiple accounts
+  budgets       Budget[]  // Relationship: One user can have one budget
+  createdAt     DateTime  @default(now()) // Timestamp when the user was created
+  updatedAt     DateTime  @updatedAt      // Timestamp when the user was last updated
+
+  @@map("users") // Maps this model to the "users" table in the database
+}
+
+model Account {
+  id           String        @id @default(uuid()) // Unique account ID
+  name         String        // Name of the account (e.g., "Savings Account")
+  type         AccountType   // Type of account (CURRENT or SAVINGS)
+  balance      Decimal       @default(0) // Initial balance (default: 0)
+  isDefault    Boolean       @default(false) // Whether this is the user's default account
+  userId       String        // Foreign key referencing User
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade) // Relationship: Belongs to one user
+  transactions Transaction[] // Relationship: One account can have multiple transactions
+  createdAt    DateTime      @default(now()) // Timestamp when the account was created
+  updatedAt    DateTime      @updatedAt      // Timestamp when the account was last updated
+
+  @@index([userId]) // Index on userId for efficient querying
+  @@map("accounts") // Maps this model to the "accounts" table in the database
+}
+
+model Transaction {
+  id                String            @id @default(uuid()) // Unique transaction ID
+  type              TransactionType   // Type of transaction (INCOME or EXPENSE)
+  amount            Decimal           // Amount of the transaction
+  description       String?           // Optional description for the transaction
+  date             DateTime           // Date of the transaction
+  category         String             // Category of the transaction (e.g., "Food", "Rent")
+  receiptUrl       String?            // Optional URL for receipt image
+  isRecurring      Boolean            @default(false) // Indicates if the transaction is recurring
+  recurringInterval RecurringInterval? // Interval for recurring transactions (if applicable)
+  nextRecurringDate DateTime?         // Next scheduled date for recurring transaction
+  lastProcessed    DateTime?          // Last time the recurring transaction was processed
+  status           TransactionStatus  @default(COMPLETED) // Status of the transaction
+  userId           String             // Foreign key referencing User
+  user             User               @relation(fields: [userId], references: [id], onDelete: Cascade) // Relationship: Belongs to one user
+  accountId        String             // Foreign key referencing Account
+  account          Account            @relation(fields: [accountId], references: [id], onDelete: Cascade) // Relationship: Belongs to one account
+  createdAt        DateTime           @default(now()) // Timestamp when the transaction was created
+  updatedAt        DateTime           @updatedAt      // Timestamp when the transaction was last updated
+
+  @@index([userId]) // Index on userId for efficient querying
+  @@index([accountId]) // Index on accountId for efficient querying
+  @@map("transactions") // Maps this model to the "transactions" table in the database
+}
+
+model Budget {
+  id          String       @id @default(uuid()) // Unique budget ID
+  amount      Decimal      // Budget amount set by the user
+  lastAlertSent DateTime?  // Tracks the last time an alert was sent to the user
+  userId      String       @unique // Foreign key referencing User (one-to-one relationship)
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade) // Relationship: Belongs to one user
+  createdAt   DateTime     @default(now()) // Timestamp when the budget was created
+  updatedAt   DateTime     @updatedAt      // Timestamp when the budget was last updated
+
+  @@index([userId]) // Index on userId for efficient querying
+  @@map("budgets") // Maps this model to the "budgets" table in the database
+}
+
+enum TransactionType {
+  INCOME   // Represents an incoming transaction (earnings)
+  EXPENSE  // Represents an outgoing transaction (spending)
+}
+
+enum AccountType {
+  CURRENT // Represents a current account (frequent transactions)
+  SAVINGS // Represents a savings account (for long-term saving)
+}
+
+enum TransactionStatus {
+  PENDING   // Transaction is pending approval or processing
+  COMPLETED // Transaction is successfully completed
+  FAILED    // Transaction failed to process
+}
+
+enum RecurringInterval {
+  DAILY   // Transaction recurs every day
+  WEEKLY  // Transaction recurs every week
+  MONTHLY // Transaction recurs every month
+  YEARLY  // Transaction recurs every year
+}
