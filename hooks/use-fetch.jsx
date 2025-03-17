@@ -12,6 +12,7 @@ export const useFetch = (cb) => {
       const response = await cb(...args);
       setData(response);
       toast.success("data fetched successfully");
+      return response;
     } catch (error) {
       setError(error);
       toast.error(error.message);

@@ -78,6 +78,15 @@ export async function createAccount(data) {
     }
 
     // Database logic here...
+    const newAccount = {
+      id: "some-unique-id",
+      name: data.name,
+      type: data.type,
+      balance: data.balance,
+      isDefault: data.isDefault,
+    };
+    console.log("✅ Account created:", newAccount);
+    return newAccount;
 
   } catch (error) {
     throw new Error(error.message);
