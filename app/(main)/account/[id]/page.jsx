@@ -1,8 +1,9 @@
 import { getAccountWithTransactions } from "@/action/accounts";
 import { notFound } from "next/navigation";
 import React, { Suspense } from "react";
-import { TransactionTable } from "../_componetes/transaction-table";
+// import { TransactionTable } from "../_componetes/transaction-table";
 import { BarLoader } from "react-spinners";
+import { TransactionTable } from "../_componetes/transaction-table";
 
 const AccountsPage = async ({ params }) => {
   const accountData = await getAccountWithTransactions(params.id);
@@ -44,20 +45,17 @@ const AccountsPage = async ({ params }) => {
         </p>
       </div>
 
-
-
       {/* Chart Section Placeholder */}
       <div className="w-full h-40 bg-gray-100 rounded-lg flex items-center justify-center">
-        📈 Chart Section (To be implemented)
+       
       </div>
 
-
-
-
       {/* Transaction Table Placeholder */}
-     <Suspense fallback={<BarLoader className="mx-auto" color="#36d7b7" size={30} />} >
-     <TransactionTable transactions={transactions} />
-     </Suspense>
+      <Suspense
+        fallback={<BarLoader className="mx-auto" color="#36d7b7" size={30} />}
+      >
+        <TransactionTable transactions={transactions} />
+      </Suspense>
     </div>
   );
 };

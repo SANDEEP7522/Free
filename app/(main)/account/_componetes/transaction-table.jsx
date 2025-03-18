@@ -12,12 +12,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -40,8 +34,12 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
+import { bulkDeleteTransactions } from "@/action/accounts";
+import { useFetch } from "@/hooks/use-fetch";
+import { BarLoader } from "react-spinners";
+import { toast } from "sonner";
 
 const RECURRING_INTERVALS = {
   DAILY: "Daily",
@@ -135,9 +133,28 @@ export function TransactionTable({ transactions }) {
     );
   };
 
-  const handleDelete = () => {
-    console.log("Deleting selected transactions:", selectedIds);
+  const {
+    loading: deleteLoading,
+    fn: deleteFn,
+    data: deleted,
+  } = useFetch(bulkDeleteTransactions);
+
+  const handleBulkDelete = async () => {
+    if (
+      !window.confirm(
+        `Are you sure you want to delete ${selectedIds.length} transactions?`
+      )
+    )
+      return;
+
+    deleteFn(selectedIds);
   };
+
+  useEffect(() => {
+    if (deleted && !deleteLoading) {
+      toast.error("Transactions deleted successfully");
+    }
+  }, [deleted, deleteLoading]);
 
   const handleClearFilters = () => {
     setSelectedIds([]);
@@ -148,6 +165,8 @@ export function TransactionTable({ transactions }) {
 
   return (
     <div className="overflow-x-auto">
+      {deleteLoading &&
+      <BarLoader className="my-4 w-full" width="100%" color="#00ff"  />}
       <div className="flex flex-wrap items-center gap-2 p-4 border rounded-lg bg-white shadow-md">
         {/* Search Input */}
         <div className="relative flex-1">
@@ -209,7 +228,7 @@ export function TransactionTable({ transactions }) {
           {selectedIds.length > 0 && (
             <Button
               variant="destructive"
-              onClick={handleDelete}
+              onClick={handleBulkDelete}
               className="flex items-center"
               size="sm"
             >
@@ -364,8 +383,7 @@ export function TransactionTable({ transactions }) {
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
-                          className="text-red-500"
-                          onClick={() => {}}
+                          onClick={() => deleteFn([transaction.id])}
                         >
                           <Trash /> Delete
                         </DropdownMenuItem>
