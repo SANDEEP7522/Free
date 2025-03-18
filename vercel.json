@@ -1,0 +1,8 @@
+{
+  "build": {
+    "env": {
+      "PRISMA_CLI_BINARY_TARGETS": "native"
+    },
+    "command": "npm run build && npx prisma generate"
+  }
+}
