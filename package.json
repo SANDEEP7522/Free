@@ -41,7 +41,10 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
-    "typescript": "^5.0.0"
+
+    "typescript": "^5.0.0",
+  "@typescript-eslint/parser": "^6.0.0",
+  "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "eslint": "^9",
